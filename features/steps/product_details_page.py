@@ -6,9 +6,11 @@ from behave import given, then
 from time import sleep
 
 
-
 COLOR_OPTIONS = (By.CSS_SELECTOR, "div[aria-label='Carousel'] li img")
 SELECTED_COLOR = (By.CSS_SELECTOR, "[data-test='@web/VariationComponent'] div")
+
+# COLOR_OPTIONS = (By.CSS_SELECTOR, "div[aria-label='Carousel'] li img")
+# SELECTED_COLOR = (By.CSS_SELECTOR, "[data-test='@web/VariationComponent'] div")
 
 
 @given('Open target product {product_id} page')
@@ -19,15 +21,15 @@ def open_target(context, product_id):
     )
 
 
-#@then('Verify user can click through colors')
-#def click_and_verify_colors(context):
-#    expected_colors = ['dark khaki', 'grey', 'navy/tan', 'white/navy/red', 'white/sand/tan', 'black/gum']
-#     actual_colors = []
-
 @then('Verify user can click through colors')
 def click_and_verify_colors(context):
-    expected_colors = ['Blue Tint', 'Denim Blue', 'Marine', 'Raven']
+    expected_colors = ['Black', 'Gray', 'Khaki']
     actual_colors = []
+
+    # @then('Verify user can click through colors')
+    # def click_and_verify_colors(context):
+    #    expected_colors = ['Blue Tint', 'Denim Blue', 'Marine', 'Raven']
+    #    actual_colors = []
 
     # Wait for the color options to be visible
     colors = WebDriverWait(context.driver, 10).until(
@@ -58,3 +60,4 @@ def click_and_verify_colors(context):
 
     # Assert the colors match the expected list
     assert expected_colors == actual_colors, f'Expected {expected_colors} did not match actual {actual_colors}'
+
