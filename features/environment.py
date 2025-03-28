@@ -5,29 +5,27 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 def browser_init(context):
 
-    context.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver_path = ChromeDriverManager().install()
+    service = Service(driver_path)
+    context.driver = webdriver.Chrome(service=service)
+
     context.driver.maximize_window()
     context.driver.implicitly_wait(4)
     context.driver.wait = WebDriverWait(context.driver, timeout=10)
 
-
-
 def before_scenario(context, scenario):
-    """Hook executed before each test scenario"""
-    browser_init(context)  # Initialize the browser
+    print('\nStarted scenario: ', scenario.name)
+    browser_init(context)
 
 
-def after_scenario(context, scenario):
-    """Hook executed after each test scenario"""
-    context.driver.quit()  # Quit the browser after scenario
+def before_step(context, step):
+    print('\nStarted step: ', step)
 
 
-def before_all(context):
-    # Initialize the browser instance here (e.g., Chrome WebDriver).
-    context.browser = webdriver.Chrome()  # Use the appropriate WebDriver for your setup.
+def after_step(context, step):
+    if step.status == 'failed':
+        print('\nStep failed: ', step)
 
 
-def after_all(context):
-    # Quit the browser after all tests complete to clean up resources.
-    if context.browser:
-        context.browser.quit()
+def after_scenario(context, feature):
+    context.driver.quit()
