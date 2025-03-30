@@ -5,9 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-@given('Open the Target Circle page')
-def open_target_circle_page(context):
-    context.driver.get("https://www.target.com/circle")
+#@given('Open the Target Circle page')
+#def open_target_circle_page(context):
+ #   context.driver.get("https://www.target.com/circle")
 
 
 @then('Verify there are at least 10 benefit cells')

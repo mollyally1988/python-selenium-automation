@@ -1,3 +1,4 @@
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from behave import given, when, then
@@ -12,31 +13,54 @@ LISTINGS = (By.CSS_SELECTOR, "[data-test='@web/site-top-of-funnel/ProductCardWra
 PRODUCT_TITLE = (By.CSS_SELECTOR, "[data-test='product-title']")
 PRODUCT_IMG = (By.CSS_SELECTOR, 'img')
 
+@given('Open target main page')
+def open_target_main_page(context):
+    context.driver.get('https://www.target.com')
+
+@when('Search for tea')
+def search_for_tea(context):
+    try:
+        # Wait for the search input field to become available
+        search_box = WebDriverWait(context.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "[data-test='search-input']"))
+        )
+        search_box.send_keys("tea")
+        search_box.submit()
+    except Exception as e:
+        print(f"Error finding the search box: {e}")
+
 @when('Click on Add to Cart button')
 def click_add_to_cart(context):
-    context.driver.find_element(*ADD_TO_CART_BTN).click()  # always clicks on 1st Add to cart btn
-
+    #context.driver.find_element(*ADD_TO_CART_BTN).click()  # always clicks on 1st Add to cart btn
+    context.app.search_results_page.add_product_to_cart()
 
 @when('Store product name')
 def store_product_name(context):
-    context.driver.wait.until(
-        EC.visibility_of_element_located(SIDE_NAV_PRODUCT_NAME),
-        message='Product name not visible'
-    )
-    context.product_name = context.driver.find_element(*SIDE_NAV_PRODUCT_NAME).text
+    context.product_name = context.app.search_results_page.store_product_name()
     print('Product name stored: ', context.product_name)
+    #context.driver.wait.until(
+   #     EC.visibility_of_element_located(SIDE_NAV_PRODUCT_NAME),
+   #     message='Product name not visible'
+    #)
+   # context.product_name = context.driver.find_element(*SIDE_NAV_PRODUCT_NAME).text
+   # print('Product name stored: ', context.product_name)
 
 
 @when('Confirm Add to Cart button from side navigation')
 def side_nav_click_add_to_cart(context):
-    context.driver.find_element(*SIDE_NAV_ADD_TO_CART_BTN).click()
-    sleep(5)
+    context.app.search_results_page.confirm_add_to_cart_from_side_nav()
+    #context.driver.find_element(*SIDE_NAV_ADD_TO_CART_BTN).click()
+    #sleep(5)
 
 
 @then('Verify correct search results shown for {expected_text}')
 def verify_search_results(context, expected_text):
-    actual_text = context.driver.find_element(*SEARCH_RESULTS_TEXT).text
     context.app.search_results_page.verify_search_results(expected_text)
+
+
+@then('Verify {expected_text} in URL')
+def verify_results_url(context, expected_text):
+    context.app.search_results_page.verify_results_url(expected_text)
 
 
 @then('Verify that every product has a name and an image')

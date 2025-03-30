@@ -1,46 +1,47 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from behave import given, when, then
-from time import sleep
 
 
-SEARCH_FIELD = (By.ID, 'search')
-SEARCH_BTN = (By.XPATH, "//button[@data-test='@web/Search/SearchButton']")
-CART_ICON = (By.CSS_SELECTOR, "[data-test='@web/CartLink']")
-HEADER_LINKS = (By.CSS_SELECTOR, "[id*='utilityNav']")
+class SignInPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.SIGN_IN_BUTTON = (By.XPATH, "//*[@data-test='accountNav-signIn']")
+        self.HEADER_TEXT = (By.XPATH, "//h1[contains(@class, 'styles_ndsHeading')]")
+        self.EMAIL_INPUT = (By.ID, "username")
+        self.PASSWORD_INPUT = (By.ID, "password")
+        self.LOGIN_BUTTON = (By.ID, "login")
 
+    def click_sign_in(self):
+        # Wait for the Sign In button and click it
+        sign_in_button = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.SIGN_IN_BUTTON)
+        )
+        sign_in_button.click()
 
-@given('Open target main page')
-def open_target_main(context):
-    context.driver.get('https://www.target.com/')
+    def verify_sign_in_page(self):
+        # Verify the header text is correct
+        header_text = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located(self.HEADER_TEXT)
+        ).text
+        assert header_text == 'Sign into your Target account', f'Expected "Sign into your Target account", but got {header_text}'
 
-    context.driver.wait.until(
-        EC.element_to_be_clickable(SEARCH_FIELD),
-        message='Search field not clickable'
-    )
+    def is_login_button_visible(self):
+        # Check if the login button is visible
+        login_button = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located(self.LOGIN_BUTTON)
+        )
+        return login_button.is_displayed()
 
+    def enter_credentials(self, email, password):
+        # Enter email and password into the respective input fields
+        email_input = self.driver.find_element(*self.EMAIL_INPUT)
+        email_input.send_keys(email)
 
-@when('Search for {search_word}')
-def search_product(context, search_word):
-    context.driver.find_element(*SEARCH_FIELD).send_keys(search_word)
-    context.driver.find_element(*SEARCH_BTN).click()
-    sleep(7)
+        password_input = self.driver.find_element(*self.PASSWORD_INPUT)
+        password_input.send_keys(password)
 
-
-@when('Click on Cart icon')
-def click_cart(context):
-    context.driver.find_element(*CART_ICON).click()
-
-
-@then('Verify at least 1 link shown')
-def verify_1_header_link_shown(context):
-    link = context.driver.find_element(*HEADER_LINKS)
-    print(link)
-
-
-@then('Verify {link_amount} links shown')
-def verify_all_header_links_shown(context, link_amount):
-    link_amount = int(link_amount) # "6" => int 6
-    links = context.driver.find_elements(*HEADER_LINKS)
-    print(links)
-    assert len(links) == link_amount, f'Expected {link_amount} links, but got {len(links)}'
+    def click_login(self):
+        # Click the login button
+        login_button = self.driver.find_element(*self.LOGIN_BUTTON)
+        login_button.click()
